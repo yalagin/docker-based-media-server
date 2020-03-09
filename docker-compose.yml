@@ -12,7 +12,7 @@ services:
       - "${TVDIR}:/media/tv"
       - "${MOVIESDIR}:/media/movies"
       - /etc/localtime:/etc/localtime:ro
-    user: "1000:1000"
+    user: 1000:1000
     labels:
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
   sonarr:
@@ -121,12 +121,11 @@ services:
     labels:
       - "traefik.http.routers.heimdall.rule=Host(`${DOMAIN}`,`${IP}`)"
   traefik:
-    image: traefik:v2.0 # The official v2.0 Traefik docker image
+    image: traefik:v2.1
     container_name: traefik
-    command: --api --providers.docker # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
     ports:
-      - "80:80" # The HTTP port
-      - "9090:8080" # The Web UI (enabled by --api)
+      - "80:80"
+      - "9090:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
-
+      - /var/run/docker.sock:/var/run/docker.sock
