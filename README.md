@@ -1,8 +1,8 @@
-# [Docker media server](https://github.com/PARC6502/docker-media-server)
+# Docker media server
 
 ## Containers
 
-- Traefik - reverse proxy, I've set it up so all \*.yourdomain domains go to the machine with the media server, then traefik makes it so service_name.yourdomain goes to the right service
+- Traefik - reverse proxy
 - Jellyfin - media server
 - Sonnarr - tv downloader
 - Radarr - movie downloader
@@ -10,13 +10,6 @@
 - Deluge - torrent client, required for downloaders to work
 - Jackett - Torrent tracker api, required for downloaders to work
 
-I'm using this setup alongside a DNS server (dnsmasq). The DNS server allows devices inside my network to access the media server through a domain. Some routers will allow you to do this, and it can also be done by pihole/adguard home/other DNS based ad blockers. You can view my DNS server setup [here.](https://github.com/PARC6502/docker-dns-dhcp)
-
-## Caveats
-
-- I'm still doing port mapping, but it's not needed with Traefik, and if your machine is publicly accessible you definitely want to lock down ports (I know nothing about security so if it will be public do your own research)
-- Traefik is only accessible by IP `<your IP>:9090/api/rawdata`
-- This is still a new setup so I've not tested it much
 
 ## Setup
 
@@ -60,16 +53,3 @@ If this is all setup correctly visiting your domain or the ip address of your ma
    - Ombi needs to be connected to sonarr, radarr and jellyfin. You could also set up passwordless login if you're only going to be using it on your network
    - IIRC you just need to go through the setup wizard for Jellyfin
    - Add links to everything on Heimdall
-
-## Updating
-
-If you've made changes to the docker compose file you'll need to stash them for the git pull to work
-
-```bash
-git stash
-```
-
-```bash
-git pull
-sudo docker-compose up -d --force-recreate --build
-```
