@@ -125,14 +125,14 @@ services:
     container_name: traefik
     command:
       - "--api.insecure=true"
-        - "--providers.docker=true"
-        - "--entryPoints.web.address=:80"
-        - "--entryPoints.websecure.address=:443"
-        - "--certificatesResolvers.le.acme.email=max@unstable.me"
-        - "--certificatesResolvers.le.acme.storage=acme.json"
-        - "--certificatesResolvers.le.acme.tlsChallenge=true"
-        - "--certificatesResolvers.le.acme.httpChallenge=true"
-        - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
+      - "--providers.docker=true"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesResolvers.le.acme.email=max@unstable.me"
+      - "--certificatesResolvers.le.acme.storage=acme.json"
+      - "--certificatesResolvers.le.acme.tlsChallenge=true"
+      - "--certificatesResolvers.le.acme.httpChallenge=true"
+      - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
     ports:
       - "443:443" # The HTTPS Port
       - "80:80" # The HTTP port
