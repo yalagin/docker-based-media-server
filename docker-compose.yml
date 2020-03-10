@@ -121,7 +121,7 @@ services:
     labels:
       - "traefik.http.routers.heimdall.rule=Host(`${DOMAIN}`,`${IP}`)"
   traefik:
-    image: traefik:v2.1 # The official v2.0 Traefik docker image
+    image: traefik:v2.0 # The official v2.0 Traefik docker image
     container_name: traefik
     command:
       - "--api.insecure=true"
@@ -150,12 +150,7 @@ services:
     image: "containous/whoami"
     container_name: "simple-service"
     restart: always
-    networks:
-      - web
     labels:
       - "traefik.http.routers.whoami.rule=Host(`${DOMAIN}`)"
       - traefik.http.routers.whoami.tls=true
       - traefik.http.routers.whoami.tls.certresolver=le
-  networks:
-    web:
-      external: true
