@@ -141,7 +141,7 @@ services:
       - "443:443"
       - "9090:8080"
     volumes:
-      - - "$HOME/Data/Programs/Docker/TraefikV2/letsencrypt:/letsencrypt"
+      - "$HOME/Data/Programs/Docker/TraefikV2/letsencrypt:/letsencrypt"
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
