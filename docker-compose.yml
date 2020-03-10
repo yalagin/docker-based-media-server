@@ -121,7 +121,7 @@ services:
     labels:
       - "traefik.http.routers.heimdall.rule=Host(`${DOMAIN}`,`${IP}`)"
   traefik:
-    image: traefik:v2.1
+    image: traefik:v2.1.6
     container_name: traefik
     command: --api.insecure=true --providers.docker
     ports:
@@ -129,3 +129,5 @@ services:
       - "9090:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.http.middlewares.test-auth.basicauth.users=max:$$apr1$$26q5WVuJ$$bmRWpCpmzZAETtO.Hi4C3/"
