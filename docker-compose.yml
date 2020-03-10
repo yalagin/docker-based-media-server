@@ -15,6 +15,9 @@ services:
     user: 1000:1000
     labels:
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
+      - "traefik.http.routers.jellyfin.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin.tls.certresolver=mytlschallenge"
+      - "traefik.http.middlewares.jellyfin.redirectscheme.scheme=https"
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr:preview
@@ -123,11 +126,25 @@ services:
   traefik:
     image: traefik:v2.1
     container_name: traefik
-    command: --api.insecure=true --providers.docker
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
+      - "--certificatesresolvers.mytlschallenge.acme.email=me@myemail.com"
+      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
+      - "443:443"
       - "9090:8080"
     volumes:
+      - - "$HOME/Data/Programs/Docker/TraefikV2/letsencrypt:/letsencrypt"
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - "traefik.http.middlewares.test-auth.basicauth.users=max:$$apr1$$26q5WVuJ$$bmRWpCpmzZAETtO.Hi4C3/"
+      traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
+      traefik.http.routers.http-catchall.entrypoints: web
+      traefik.http.routers.http-catchall.middlewares: redirect-to-https@docker
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
