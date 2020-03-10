@@ -179,8 +179,8 @@ services:
       - UMASK_SET=022 #optional
     volumes:
       - ./bazarr:/config
-      - "${TVDIR}:/media/tv"
-      - "${MOVIESDIR}:/media/movies"
+      - "${TVDIR}:/tv"
+      - "${MOVIESDIR}:/movies"
     ports:
       - 6767:6767
     restart: unless-stopped
