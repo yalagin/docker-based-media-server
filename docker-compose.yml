@@ -150,8 +150,8 @@ services:
     image: "containous/whoami"
     container_name: "simple-service"
     restart: always
-      networks:
-        - web
+    networks:
+      - web
     labels:
       - "traefik.http.routers.whoami.rule=Host(`${DOMAIN}`)"
       - traefik.http.routers.whoami.tls=true
