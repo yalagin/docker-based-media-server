@@ -38,18 +38,18 @@
     chmod -R 0777 content/ 
    ```
    
- 6. Setup your DNS so that all \*.yourdomain go to the media server. Your domain doesn't have to be registered since it will only be used internally
+ 6. Setup your DNS so that all `*.<your-domain>` go to the media server. Your domain doesn't have to be registered since it will only be used internally
    
  7. Fire up the docker containers
    
    ```bash
-   # Make sure you're running this command from inside the docker-media-server folder and that the .env file is inside the same folder
+   # Make sure you're running this command from inside the docker-based-media-server folder and that the .env file is inside the same folder
    sudo docker-compose up -d
    # The command will take a bit, after it runs you can run the following to check all the containers are running
    sudo docker-compose ps
    ```
  
- 8. If this is all setup correctly visiting your domain or the ip address of your machine should open Heimdall, and `<your ip>:8112` or `deluge.<your domain>` should open the Deluge web ui.
+ 8. If this is all setup correctly visiting your domain or the ip address of your machine should open Heimdall, and `<your-ip>:8112` or `deluge.<your-domain>` should open the Deluge web ui.
 
  9. Setup all the different containers
        - Deluge needs to be setup to download to `/downloads/incomplete` and move completed downloads to `/downloads/completed`

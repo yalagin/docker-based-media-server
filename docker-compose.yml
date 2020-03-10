@@ -121,13 +121,28 @@ services:
     labels:
       - "traefik.http.routers.heimdall.rule=Host(`${DOMAIN}`,`${IP}`)"
   traefik:
-    image: traefik:v2.1.6
+    image: traefik:v2.1.6 # The official v2.0 Traefik docker image
     container_name: traefik
-    command: --api.insecure=true --providers.docker
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=max@unstable.me"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "80:80"
-      - "9090:8080"
+      - "80:80" # The HTTP port
+      - "9090:8080" # The Web UI (enabled by --api)
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - "./letsencrypt:/letsencrypt"
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+  whoami:
+    image: "containous/whoami"
+    container_name: "whoami"
     labels:
-      - "traefik.http.middlewares.test-auth.basicauth.users=max:$$apr1$$26q5WVuJ$$bmRWpCpmzZAETtO.Hi4C3/"
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.unstable.me`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routerhttp.middlewares.test-auth.basicauth.users=max:$$apr1$$26q5WVuJ$$bmRWpCpmzZAETtO.Hi4C3/"
