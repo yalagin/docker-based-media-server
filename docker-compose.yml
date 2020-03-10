@@ -16,8 +16,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.jellyfin.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin.tls.certresolver=mytlschallenge"
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr:preview
@@ -39,8 +39,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN}`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.sonarr.entrypoints=websecure"
+      - "traefik.http.routers.sonarr.tls.certresolver=mytlschallenge"
   radarr:
     container_name: radarr
     image: linuxserver/radarr
@@ -76,8 +76,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ombi.rule=Host(`ombi.${DOMAIN}`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.ombi.entrypoints=websecure"
+      - "traefik.http.routers.ombi.tls.certresolver=mytlschallenge"
     depends_on:
       - radarr
       - sonarr
@@ -101,8 +101,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.deluge.rule=Host(`deluge.${DOMAIN}`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.deluge.entrypoints=websecure"
+      - "traefik.http.routers.deluge.tls.certresolver=mytlschallenge"
   jackett:
     image: linuxserver/jackett
     container_name: jackett
@@ -119,8 +119,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jackett.rule=Host(`jackett.${DOMAIN}`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.jackett.entrypoints=websecure"
+      - "traefik.http.routers.jackett.tls.certresolver=mytlschallenge"
   heimdall:
     image: linuxserver/heimdall
     container_name: heimdall
@@ -136,8 +136,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.heimdall.rule=Host(`${DOMAIN}`,`${IP}`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.heimdall.entrypoints=websecure"
+      - "traefik.http.routers.heimdall.tls.certresolver=mytlschallenge"
   whoami:
     image: "containous/whoami"
     container_name: "simple-service"
