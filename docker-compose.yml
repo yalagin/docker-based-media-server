@@ -60,7 +60,10 @@ services:
       - jackett
       - deluge
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN}`)"
+      - "traefik.http.routers.radarr.entrypoints=websecure"
+      - "traefik.http.routers.radarr.tls.certresolver=mytlschallenge"
   ombi:
     image: linuxserver/ombi
     container_name: ombi
