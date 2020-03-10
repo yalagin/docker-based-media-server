@@ -14,10 +14,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
     user: 1000:1000
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
-      - "traefik.http.routers.jellyfin.entrypoints=websecure"
-      - "traefik.http.routers.jellyfin.tls.certresolver=mytlschallenge"
-      - "traefik.http.middlewares.jellyfin.redirectscheme.scheme=https"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr:preview
@@ -37,7 +37,10 @@ services:
       - jackett
       - deluge
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
   radarr:
     container_name: radarr
     image: linuxserver/radarr
@@ -71,7 +74,10 @@ services:
       - ./ombi:/config
       - /etc/localtime:/etc/localtime:ro
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.ombi.rule=Host(`ombi.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
     depends_on:
       - radarr
       - sonarr
@@ -93,7 +99,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.deluge.rule=Host(`deluge.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
   jackett:
     image: linuxserver/jackett
     container_name: jackett
@@ -108,7 +117,10 @@ services:
       - ${DLDIR}/completed:/downloads
       - /etc/localtime:/etc/localtime:ro
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.jackett.rule=Host(`jackett.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
   heimdall:
     image: linuxserver/heimdall
     container_name: heimdall
@@ -122,29 +134,35 @@ services:
       - "8888:80"
     restart: unless-stopped
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.heimdall.rule=Host(`${DOMAIN}`,`${IP}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
+  whoami:
+    image: "containous/whoami"
+    container_name: "simple-service"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
   traefik:
     image: traefik:v2.1
     container_name: traefik
     command:
-      - "--log.level=DEBUG"
+      #- "--log.level=DEBUG"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
-      - "--certificatesresolvers.mytlschallenge.acme.email=me@myemail.com"
+      #- "--certificatesresolvers.mytlschallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.mytlschallenge.acme.email=maxvanessen2@gmail.com"
       - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
       - "9090:8080"
     volumes:
-      - "$HOME/Data/Programs/Docker/TraefikV2/letsencrypt:/letsencrypt"
+      - "./letsencrypt:/letsencrypt"
       - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
-      traefik.http.routers.http-catchall.entrypoints: web
-      traefik.http.routers.http-catchall.middlewares: redirect-to-https@docker
-      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
