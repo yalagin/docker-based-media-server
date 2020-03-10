@@ -125,25 +125,37 @@ services:
     container_name: traefik
     command:
       - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      - "--certificatesresolvers.myresolver.acme.email=max@unstable.me"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+        - "--providers.docker=true"
+        - "--entryPoints.web.address=:80"
+        - "--entryPoints.websecure.address=:443"
+        - "--certificatesResolvers.le.acme.email=max@unstable.me"
+        - "--certificatesResolvers.le.acme.storage=acme.json"
+        - "--certificatesResolvers.le.acme.tlsChallenge=true"
+        - "--certificatesResolvers.le.acme.httpChallenge=true"
+        - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
     ports:
       - "443:443" # The HTTPS Port
       - "80:80" # The HTTP port
       - "9090:8080" # The Web UI (enabled by --api)
     volumes:
-      - "./letsencrypt:/letsencrypt"
+      - ./acme.json:/acme.json
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+    labels:
+      - traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)
+      - traefik.http.routers.http_catchall.entrypoints=web
+      - traefik.http.routers.http_catchall.middlewares=https_redirect
+      - traefik.http.middlewares.https_redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https_redirect.redirectscheme.permanent=true
   whoami:
     image: "containous/whoami"
-    container_name: "whoami"
+    container_name: "simple-service"
+    restart: always
+      networks:
+        - web
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.unstable.me`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routerhttp.middlewares.test-auth.basicauth.users=max:$$apr1$$26q5WVuJ$$bmRWpCpmzZAETtO.Hi4C3/"
+      - "traefik.http.routers.whoami.rule=Host(`${DOMAIN}`)"
+      - traefik.http.routers.whoami.tls=true
+      - traefik.http.routers.whoami.tls.certresolver=le
+  networks:
+    web:
+      external: true
