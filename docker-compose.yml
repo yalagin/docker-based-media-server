@@ -121,7 +121,7 @@ services:
     labels:
       - "traefik.http.routers.heimdall.rule=Host(`${DOMAIN}`,`${IP}`)"
   traefik:
-    image: traefik:v2.1.6 # The official v2.0 Traefik docker image
+    image: traefik:v2.1 # The official v2.0 Traefik docker image
     container_name: traefik
     command:
       - "--api.insecure=true"
@@ -133,6 +133,7 @@ services:
       - "--certificatesresolvers.myresolver.acme.email=max@unstable.me"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
+      - "443:443" # The HTTPS Port
       - "80:80" # The HTTP port
       - "9090:8080" # The Web UI (enabled by --api)
     volumes:
