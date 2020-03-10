@@ -106,6 +106,26 @@ services:
       - "traefik.http.routers.deluge.rule=Host(`deluge.${DOMAIN}`)"
       - "traefik.http.routers.deluge.entrypoints=websecure"
       - "traefik.http.routers.deluge.tls.certresolver=mytlschallenge"
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ./transmission:/config
+      - ${DLDIR}:/downloads
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.transmission.rule=Host(`transmission.${DOMAIN}`)"
+      - "traefik.http.routers.transmission.entrypoints=websecure"
+      - "traefik.http.routers.transmission.tls.certresolver=mytlschallenge"
   jackett:
     image: linuxserver/jackett
     container_name: jackett
