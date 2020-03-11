@@ -2,10 +2,11 @@
 
 ## Containers
 
-- Traefik - reverse proxy
+- Traefik - reverse proxy (SSL is setup allready)
 - Jellyfin - media server
 - Sonnarr - tv downloader
 - Radarr - movie downloader
+- 
 - Ombi - requester for radarr & sonarr
 - Deluge - torrent client, required for downloaders to work
 - Jackett - Torrent tracker api, required for downloaders to work
