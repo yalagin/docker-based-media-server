@@ -33,7 +33,7 @@ services:
       - ./sonarr:/config
       - ${DLDIR}/completed:/downloads/completed
       - ${TVDIR}:/tv
-      - "${ANIMEDR}:/anime"
+      - ${ANIMEDR}:/anime
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - jackett
@@ -45,7 +45,7 @@ services:
       - "traefik.http.routers.sonarr.tls.certresolver=mytlschallenge"
   radarr:
     container_name: radarr
-    image: linuxserver/radarr
+    image: linuxserver/radarr:preview
     restart: unless-stopped
     ports:
       - 7878:7878
