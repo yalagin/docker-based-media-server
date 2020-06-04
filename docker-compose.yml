@@ -1,14 +1,13 @@
 version: "3"
 services:
   jellyfin:
-    container_name: jellyfin
-    image: jellyfin/jellyfin
+    container_name: plex
+    image: linuxserver/plex
     restart: unless-stopped
     ports:
       - 8096:8096
     volumes:
-      - ./jellyfin/config:/config
-      - ./jellyfin/cache:/cache
+      - ./plex/library:/config
       - "${TVDIR}:/media/tv"
       - "${MOVIESDIR}:/media/movies"
       - "${ANIMEDR}:/media/anime"
@@ -16,9 +15,9 @@ services:
     user: 1000:1000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
-      - "traefik.http.routers.jellyfin.entrypoints=websecure"
-      - "traefik.http.routers.jellyfin.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.plex.rule=Host(`plex.${DOMAIN}`)"
+      - "traefik.http.routers.plex.entrypoints=websecure"
+      - "traefik.http.routers.plex.tls.certresolver=mytlschallenge"
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr:preview
