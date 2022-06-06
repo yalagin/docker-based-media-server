@@ -1,39 +1,49 @@
-version: "3"
+version: "3.9"
+
+
+# Common environment values
+x-environment: &default-tz-puid-pgid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+  LOG_LEVEL: debug
+
+# Network and Security
+#x-network-and-security: &network-and-security
+#  networks:
+#    - npm_proxy
+#  security_opt:
+#    - no-new-privileges:true
+
+# Keys common to some of the core services that we always to automatically restart on failure
+x-common-keys-core: &common-keys-core
+  #  <<: *network-and-security
+  restart: always
+
+# Keys common to some of the dependent services/apps
+x-common-keys-apps: &common-keys-apps
+  #  <<: *network-and-security
+  restart: unless-stopped
+
+# Keys common to some of the services in media-services.txt
+x-common-keys-media: &common-keys-media
+  #  <<: *network-and-security
+  restart: "no"
+
+
+
 services:
-  jellyfin:
-    container_name: jellyfin
-    image: jellyfin/jellyfin
-    restart: unless-stopped
-    ports:
-      - 8096:8096
-    volumes:
-      - ./jellyfin/config:/config
-      - ./jellyfin/cache:/cache
-      - "${TVDIR}:/media/tv"
-      - "${MOVIESDIR}:/media/movies"
-      - "${ANIMEDR}:/media/anime"
-      - /etc/localtime:/etc/localtime:ro
-    user: 1000:1000
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
-      - "traefik.http.routers.jellyfin.entrypoints=websecure"
-      - "traefik.http.routers.jellyfin.tls.certresolver=mytlschallenge"
   sonarr:
     container_name: sonarr
-    image: linuxserver/sonarr:preview
+    image: linuxserver/sonarr
     restart: unless-stopped
     ports:
       - 8989:8989
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
+      <<: *default-tz-puid-pgid
     volumes:
       - ./sonarr:/config
-      - ${DLDIR}/completed:/downloads/completed
-      - ${TVDIR}:/tv
-      - ${ANIMEDR}:/anime
+      - ${DATADIR}:/data
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - jackett
@@ -44,19 +54,17 @@ services:
       - "traefik.http.routers.sonarr.entrypoints=websecure"
       - "traefik.http.routers.sonarr.tls.certresolver=mytlschallenge"
   radarr:
+    <<: *common-keys-media # See EXTENSION FIELDS at the top
     container_name: radarr
-    image: linuxserver/radarr:preview
+    image: linuxserver/radarr
     restart: unless-stopped
     ports:
       - 7878:7878
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
+      <<: *default-tz-puid-pgid
     volumes:
       - ./radarr:/config
-      - ${DLDIR}/completed:/downloads/completed
-      - ${MOVIESDIR}:/movies
+      - ${DATADIR}:/data
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - jackett
@@ -67,14 +75,13 @@ services:
       - "traefik.http.routers.radarr.entrypoints=websecure"
       - "traefik.http.routers.radarr.tls.certresolver=mytlschallenge"
   ombi:
-    image: linuxserver/ombi
+    image: linuxserver/ombi:latest
     container_name: ombi
     restart: unless-stopped
     ports:
       - 3579:3579
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
+      <<: *default-tz-puid-pgid
     volumes:
       - ./ombi:/config
       - /etc/localtime:/etc/localtime:ro
@@ -94,12 +101,12 @@ services:
       - 8118:8118
       - 58846:58846
       - 58946:58946
+      - 6881:6881
+      - 6881:6881/udp
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=Europe/London
+      <<: *default-tz-puid-pgid
     volumes:
-      - ${DLDIR}:/downloads
+      - ${DLDIR}:/data/downloads
       - ./deluge:/config
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
@@ -112,12 +119,10 @@ services:
     image: linuxserver/transmission
     container_name: transmission
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
+      <<: *default-tz-puid-pgid
     volumes:
       - ./transmission:/config
-      - ${DLDIR}:/downloads
+      - ${DLDIR}:/data/downloads
     ports:
       - 9091:9091
       - 51413:51413
@@ -133,10 +138,9 @@ services:
     container_name: jackett
     restart: unless-stopped
     ports:
-      - 9117:9117
+      - "9117:9117"
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
+      <<: *default-tz-puid-pgid
     volumes:
       - ./jackett:/config
       - ${DLDIR}/completed:/downloads
@@ -175,15 +179,14 @@ services:
     image: linuxserver/bazarr
     container_name: bazarr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - UMASK_SET=022 #optional
+      <<: *default-tz-puid-pgid
+      UMASK_SET: 022
     volumes:
       - ./bazarr:/config
-      - "${TVDIR}:/tv"
-      - "${ANIMEDR}:/anime"
-      - "${MOVIESDIR}:/movies"
+      - ${DATADIR}:/data
+      - ${ANIMEDIR}:/anime
+      - ${TVDIR}:/tv
+      - ${MOVIESDIR}:/movie
     ports:
       - 6767:6767
     restart: unless-stopped
@@ -192,23 +195,83 @@ services:
       - "traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN}`)"
       - "traefik.http.routers.bazarr.entrypoints=websecure"
       - "traefik.http.routers.bazarr.tls.certresolver=mytlschallenge"
-  traefik:
-    image: traefik:v2.0
-    container_name: traefik
-    command:
-      #- "--log.level=DEBUG"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
-      #- "--certificatesresolvers.mytlschallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      - "--certificatesresolvers.mytlschallenge.acme.email=maxvanessen2@gmail.com"
-      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "8090:80"
-      - "443:443"
-      - "9090:8080"
+#  traefik:
+#    <<: *common-keys-apps # See EXTENSION FIELDS at the top
+#    image: traefik:v2.0
+#    container_name: traefik
+#    command:
+#      - "--log.level=DEBUG"
+#      - "--api.insecure=true"
+#      - "--providers.docker=true"
+#      - "--providers.docker.exposedbydefault=false"
+#      - "--entrypoints.websecure.address=:443"
+#      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
+#      #- "--certificatesresolvers.mytlschallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+#      - "--certificatesresolvers.mytlschallenge.acme.email=maxvanessen2@gmail.com"
+#      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#      - "9090:8080"
+#    volumes:
+#      - "./letsencrypt:/letsencrypt"
+#      - /var/run/docker.sock:/var/run/docker.sock
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    environment:
+      <<: *default-tz-puid-pgid
     volumes:
-      - "./letsencrypt:/letsencrypt"
+      - ./prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      <<: *default-tz-puid-pgid
+    ports:
+      - 5055:5055
+    volumes:
+      - ./overseerr:/app/config
+    restart: unless-stopped
+
+  ############################# MAINTENANCE
+
+  # Docker-GC - Automatic Docker Garbage Collection
+  # Create docker-gc-exclude file
+  dockergc1:
+    <<: *common-keys-apps # See EXTENSION FIELDS at the top
+    image: clockworksoul/docker-gc-cron:latest
+    container_name: docker-gc1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Use Docker Socket Proxy and comment this line for improved security.
+    #      - $DOCKERDIR/appdata/docker-gc/docker-gc-exclude:/etc/docker-gc-exclude # Create empty file
+    environment:
+      CRON: 0 0 0 * * ? # Everyday at midnight. Previously 0 0 * * *
+      FORCE_IMAGE_REMOVAL: 1
+      FORCE_CONTAINER_REMOVAL: 0
+      GRACE_PERIOD_SECONDS: 604800
+      DRY_RUN: 0
+      CLEAN_UP_VOLUMES: 1
+      TZ: $TZ
+      # DOCKER_HOST: tcp://socket-proxy:2375 # Use this if you have Socket Proxy enabled.
+
+  # WatchTower - Automatic Docker Container Updates
+  watchtower1:
+    <<: *common-keys-core # See EXTENSION FIELDS at the top
+    image: containrrr/watchtower
+    container_name: watchtower1
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: $TZ
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_REMOVE_VOLUMES: "true"
+      WATCHTOWER_INCLUDE_STOPPED: "true"
+      WATCHTOWER_NO_STARTUP_MESSAGE: "false"
+      WATCHTOWER_SCHEDULE: "0 30 12 * * *" # Everyday at 12:30
+      # DOCKER_HOST: tcp://socket-proxy:2375 # Use this if you have Socket Proxy enabled.
+      DOCKER_API_VERSION: "1.40"

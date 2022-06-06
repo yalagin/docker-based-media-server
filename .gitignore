@@ -5,5 +5,11 @@ radarr
 ombi
 deluge
 jackett
+transmission
+prowlarr
+overseerr
+letsencrypt
+heimdall
+bazarr
 
 .idea/*

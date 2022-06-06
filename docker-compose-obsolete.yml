@@ -1,0 +1,21 @@
+#services:
+#  jellyfin:
+#    container_name: jellyfin
+#    image: jellyfin/jellyfin
+#    restart: unless-stopped
+#    ports:
+#      - 8096:8096
+#    volumes:
+#      - ./jellyfin/config:/config
+#      - ./jellyfin/cache:/cache
+#      - "${TVDIR}:/media/tv"
+#      - "${MOVIESDIR}:/media/movies"
+#      - "${ANIMEDR}:/media/anime"
+#      - /Volumes:/Volumes
+#      - /etc/localtime:/etc/localtime:ro
+#    user: 1000:1000
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
+#      - "traefik.http.routers.jellyfin.entrypoints=websecure"
+#      - "traefik.http.routers.jellyfin.tls.certresolver=mytlschallenge"
